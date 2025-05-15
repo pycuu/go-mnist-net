@@ -43,3 +43,32 @@ func NewNetwork(layers []int) (*Network, error) {
 		Biases:  biases,
 	}, nil
 }
+
+func (net *Network) Forward(input []float64) ([]float64, error) {
+	if len(input) != net.Layers[0] {
+		return nil, errors.New("input length must match size of input layer")
+	}
+
+	activation := input
+
+	for layer := 0; layer < len(net.Layers)-1; layer++ {
+		current_size := net.Layers[layer]
+		next_size := net.Layers[layer+1]
+
+		next := make([]float64, next_size)
+
+		for i := 0; i < next_size; i++ {
+			sum := 0.0
+			for j := 0; j < current_size; j++ {
+				weight_index := i*current_size + j
+				sum += net.Weights[layer][weight_index] * activation[j]
+			}
+			sum += net.Biases[layer][i]
+			next[i] = ReLu(sum)
+		}
+
+		activation = next
+	}
+
+	return activation, nil
+}
