@@ -44,31 +44,68 @@ func NewNetwork(layers []int) (*Network, error) {
 	}, nil
 }
 
-func (net *Network) Forward(input []float64) ([]float64, error) {
+func (net *Network) Forward(input []float64) (output []float64, zs [][]float64, activations [][]float64, err error) {
 	if len(input) != net.Layers[0] {
-		return nil, errors.New("input length must match size of input layer")
+		return nil, nil, nil, errors.New("input length must match size of input layer")
 	}
 
 	activation := input
+	activations = append(activations, activation)
 
 	for layer := 0; layer < len(net.Layers)-1; layer++ {
-		current_size := net.Layers[layer]
-		next_size := net.Layers[layer+1]
+		currentSize := net.Layers[layer]
+		nextSize := net.Layers[layer+1]
 
-		next := make([]float64, next_size)
+		z := make([]float64, nextSize)
+		nextActivation := make([]float64, nextSize)
 
-		for i := 0; i < next_size; i++ {
+		for i := 0; i < nextSize; i++ {
 			sum := 0.0
-			for j := 0; j < current_size; j++ {
-				weight_index := i*current_size + j
-				sum += net.Weights[layer][weight_index] * activation[j]
+			for j := 0; j < currentSize; j++ {
+				weightIndex := i*currentSize + j
+				sum += net.Weights[layer][weightIndex] * activation[j]
 			}
 			sum += net.Biases[layer][i]
-			next[i] = ReLu(sum)
+			z[i] = sum
+			nextActivation[i] = ReLu(sum)
 		}
 
-		activation = next
+		zs = append(zs, z)
+		activations = append(activations, nextActivation)
+		activation = nextActivation
 	}
 
-	return activation, nil
+	return activation, zs, activations, nil
+}
+
+func (net *Network) Backward(input, target []float64) (gradW [][][]float64, gradB [][]float64, err error) {
+	activations := [][]float64{input}
+	zs := [][]float64{}
+	output, zs, activations, err := net.Forward(input)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// looping through net to get lengths of slices for gradients
+	for l := 0; l < len(net.Layers)-1; l++ {
+		current := net.Layers[l]
+		next := net.Layers[l+1]
+
+		gradW[l] = make([][]float64, next)
+		for i := 0; i < next; i++ {
+			gradW[l][i] = make([]float64, current)
+		}
+
+		gradB[l] = make([]float64, next)
+	}
+
+	last := len(zs) - 1
+	delta := make([]float64, len(output))
+	// calculating the delta slice values
+	for i := range delta {
+		delta[i] = (output[i] - target[i]) * ReLUPrime(zs[last][i])
+	}
+	//skonczylo sie na tym ze delta chyba zle sie liczy bo powinna miec 2 wymiary,
+	//potem po liczeniu delt trzeba dodac gradB i gradW, a potem zwrocic i jest g
+	return gradW, gradB, nil
 }
