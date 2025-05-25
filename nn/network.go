@@ -79,14 +79,16 @@ func (net *Network) Forward(input []float64) (output []float64, zs [][]float64, 
 }
 
 func (net *Network) Backward(input, target []float64) (gradW [][][]float64, gradB [][]float64, err error) {
-	activations := [][]float64{input}
-	zs := [][]float64{}
 	output, zs, activations, err := net.Forward(input)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	// looping through net to get lengths of slices for gradients
+	// allocating slices
+	gradW = make([][][]float64, len(net.Layers)-1)
+	gradB = make([][]float64, len(net.Layers)-1)
+
+	// init for each layer
 	for l := 0; l < len(net.Layers)-1; l++ {
 		current := net.Layers[l]
 		next := net.Layers[l+1]
@@ -95,17 +97,45 @@ func (net *Network) Backward(input, target []float64) (gradW [][][]float64, grad
 		for i := 0; i < next; i++ {
 			gradW[l][i] = make([]float64, current)
 		}
-
 		gradB[l] = make([]float64, next)
 	}
 
-	last := len(zs) - 1
-	delta := make([]float64, len(output))
-	// calculating the delta slice values
-	for i := range delta {
-		delta[i] = (output[i] - target[i]) * ReLUPrime(zs[last][i])
+	// calculating delta for last layer
+	deltas := make([][]float64, len(net.Layers)-1)
+	last_layer_index := len(zs) - 1
+
+	deltas[last_layer_index] = make([]float64, len(output))
+	for i := range output {
+		deltas[last_layer_index][i] = (output[i] - target[i]) * ReLUPrime(zs[last_layer_index][i])
 	}
-	//skonczylo sie na tym ze delta chyba zle sie liczy bo powinna miec 2 wymiary,
-	//potem po liczeniu delt trzeba dodac gradB i gradW, a potem zwrocic i jest g
+
+	// deltas for each neuron from other layers
+	for l := len(net.Layers) - 2; l > 0; l-- {
+		layerSize := net.Layers[l]
+		nextSize := net.Layers[l+1]
+
+		deltas[l-1] = make([]float64, layerSize)
+
+		for i := 0; i < layerSize; i++ {
+			sum := 0.0
+			for j := 0; j < nextSize; j++ {
+				weight := net.Weights[l][j*layerSize+i]
+				sum += weight * deltas[l][j]
+			}
+			deltas[l-1][i] = sum * ReLUPrime(zs[l-1][i])
+		}
+	}
+
+	// computing gradients for each bias and weight
+	// gradW[l][i][j] - gradient of weight from [j][l] to [i][l+1]
+	for l := 0; l < len(deltas); l++ {
+		for i := range gradB[l] {
+			gradB[l][i] = deltas[l][i]
+			for j := range gradW[l][i] {
+				gradW[l][i][j] = deltas[l][i] * activations[l][j]
+			}
+		}
+	}
+
 	return gradW, gradB, nil
 }
