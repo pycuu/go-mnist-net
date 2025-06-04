@@ -139,3 +139,7 @@ func (net *Network) Backward(input, target []float64) (gradW [][][]float64, grad
 
 	return gradW, gradB, nil
 }
+
+func UpdateWeights(net *Network) (gradW [][][]float64, gradB [][]float64, learning_rate float64) {
+
+}
