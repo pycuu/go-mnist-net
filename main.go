@@ -190,10 +190,10 @@ func trainingLoop(layers []int, learning_rate float64, epochs int, batch_size in
 
 // tests some parameters and saves the results to a csv (can adjust the parameters)
 func testParameters() {
-	// some default paremeters just to initialize
+	// some default paremeters just to initialize (can set the epochs count)
 	layers := []int{784, 16, 16, 10} // input layer (28x28=784), hidden layers, output layer (10 digits)
 	learning_rate := 0.6
-	epochs := 3
+	epochs := 8
 	batch_size := 32
 
 	file, err := os.Create("output.csv")
@@ -211,14 +211,15 @@ func testParameters() {
 		log.Fatal("Failed to write header:", err)
 	}
 
-	for lo := 1; lo <= 8; lo++ {
+	// lo - neurons in hidden layer 1, lt - neurons in hidden layer two, lr - learning rate, bs - batch size
+	for lo := 1; lo <= 4; lo++ {
 		layers[1] = lo * 16
-		for lt := 1; lt <= 8; lt++ {
+		for lt := 1; lt <= 4; lt++ {
 			layers[2] = lt * 16
 			for lr := 1; lr <= 4; lr++ {
 				learning_rate = float64(lr) * 0.2
-				for bs := 1; bs <= 8; bs++ {
-					batch_size = 32 * bs
+				for bs := 1; bs <= 4; bs++ {
+					batch_size = 64 * bs
 					acc, err := trainingLoop(layers, learning_rate, epochs, batch_size)
 					if err != nil {
 						fmt.Println("Training error:", err)
