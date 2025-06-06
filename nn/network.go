@@ -67,7 +67,7 @@ func (net *Network) Forward(input []float64) (output []float64, zs [][]float64, 
 			}
 			sum += net.Biases[layer][i]
 			z[i] = sum
-			nextActivation[i] = ReLu(sum)
+			nextActivation[i] = Sigmoid(sum)
 		}
 
 		zs = append(zs, z)
@@ -106,7 +106,7 @@ func (net *Network) Backward(input, target []float64) (gradW [][][]float64, grad
 
 	deltas[last_layer_index] = make([]float64, len(output))
 	for i := range output {
-		deltas[last_layer_index][i] = (output[i] - target[i]) * ReLUPrime(zs[last_layer_index][i])
+		deltas[last_layer_index][i] = (output[i] - target[i]) * SigmoidPrime(zs[last_layer_index][i])
 	}
 
 	// deltas for each neuron from other layers
@@ -122,7 +122,7 @@ func (net *Network) Backward(input, target []float64) (gradW [][][]float64, grad
 				weight := net.Weights[l][j*layerSize+i]
 				sum += weight * deltas[l][j]
 			}
-			deltas[l-1][i] = sum * ReLUPrime(zs[l-1][i])
+			deltas[l-1][i] = sum * SigmoidPrime(zs[l-1][i])
 		}
 	}
 
@@ -140,6 +140,21 @@ func (net *Network) Backward(input, target []float64) (gradW [][][]float64, grad
 	return gradW, gradB, nil
 }
 
-func UpdateWeights(net *Network) (gradW [][][]float64, gradB [][]float64, learning_rate float64) {
+func (net *Network) UpdateWeights(gradW [][][]float64, gradB [][]float64, learningRate float64) {
 
+	for l := 0; l < len(net.Weights); l++ {
+		inputs := net.Layers[l]
+		outputs := net.Layers[l+1]
+
+		for i := 0; i < outputs; i++ {
+			net.Biases[l][i] -= learningRate * gradB[l][i]
+
+			for j := 0; j < inputs; j++ {
+				index := i*inputs + j
+				//fmt.Printf("Before: %f\n", net.Weights[l][index])
+				net.Weights[l][index] -= learningRate * gradW[l][i][j]
+				//fmt.Printf("After: %f\n", net.Weights[l][index])
+			}
+		}
+	}
 }
