@@ -218,7 +218,7 @@ func testParameters() {
 			layers[2] = lt * 16
 			for lr := 1; lr <= 4; lr++ {
 				learning_rate = float64(lr) * 0.2
-				for bs := 1; bs <= 4; bs++ {
+				for bs := 1; bs <= 2; bs++ {
 					batch_size = 64 * bs
 					acc, err := trainingLoop(layers, learning_rate, epochs, batch_size)
 					if err != nil {
