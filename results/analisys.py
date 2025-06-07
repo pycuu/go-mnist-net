@@ -26,5 +26,5 @@ for column in expected_columns[1:]:
 
 best_row = df.loc[df['Accuracy'].idxmax()]
 
-print("\nNajlepsza kombinacja parametrów:")
+print("\nbest parameters combination for highest accuracy:")
 print(best_row.to_string())
