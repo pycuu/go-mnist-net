@@ -66,7 +66,3 @@ go test -v
         Support for additional activation functions and optimizers
 
         Better analysis and visualization tools
-
-License
-
-MIT – free to use, modify, and share.
