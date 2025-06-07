@@ -57,7 +57,7 @@ go test -v
 ```
 ### 5. Planned Improvements
 
-- This is a work in progress. Planned future improvements include:
+- Planned future improvements include:
 
         Optimization of training speed and memory usage
 
