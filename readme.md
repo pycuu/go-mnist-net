@@ -33,7 +33,7 @@ trainingLoop(layers, learning_rate, epochs, batch_size)
 ```bash
 layers := []int{784, 16, 16, 10} // input layer (28x28), two hidden layers, 10 output classes
 learning_rate := 0.6
-epochs := 3
+epochs := 12
 batch_size := 32
 ```
 - You can adjust the network structure, learning rate, number of epochs, and batch size directly in main().
@@ -44,10 +44,10 @@ batch_size := 32
 ```bash
 testParameters()
 ```
-- This will generate a CSV file at results/output.csv, which you can analyze using the included Python script:
-
+- This will generate a CSV file at results/output.csv, which you can analyze using the  Python script included in the folder "results":
+```bash
 python3 analysis.py
-
+```
 - Make sure Python 3 and any required libraries (e.g. matplotlib, pandas) are installed.
 ### 4. Running Tests
 
