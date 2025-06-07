@@ -18,7 +18,7 @@ This project implements a simple fully connected feedforward neural network from
 ### 1. Clone and Build
 
 ```bash
-git clone https://github.com/your-username/your-repo.git
+git clone https://github.com/pycuu/go-mnist-net.git
 cd your-repo
 go build
 ```
