@@ -44,14 +44,14 @@ batch_size := 32
 ```bash
 testParameters()
 ```
-- This will generate a CSV file at results/output.csv, which you can analyze using the  Python script included in the folder "results":
+- This will generate a CSV file at results/output.csv, which you can analyze using the  Python script included in results/:
 ```bash
 python3 analysis.py
 ```
 - Make sure Python 3 and the required libraries (matplotlib, pandas, seaborn) are installed.
 ### 4. Running Tests
 
-- Unit tests are available in network_test.go. Run them using:
+- Unit tests are available in nn/network_test.go. Run them using:
 ```bash
 go test -v
 ```
