@@ -17,14 +17,14 @@ func main() {
 
 	// set network parameters
 
-	//layers := []int{784, 16, 16, 10} // input layer (28x28=784), hidden layers, output layer (10 digits)
-	//learning_rate := 0.6
-	//epochs := 3
-	//batch_size := 32
+	layers := []int{784, 16, 16, 10} // input layer (28x28=784), hidden layers, output layer (10 digits)
+	learning_rate := 0.6
+	epochs := 12
+	batch_size := 32
 
-	//trainingLoop(layers, learning_rate, epochs, batch_size)
+	trainingLoop(layers, learning_rate, epochs, batch_size)
 
-	testParameters()
+	//testParameters()
 
 }
 
@@ -190,13 +190,13 @@ func trainingLoop(layers []int, learning_rate float64, epochs int, batch_size in
 
 // tests some parameters and saves the results to a csv (can adjust the parameters)
 func testParameters() {
-	// some default paremeters just to initialize (can set the epochs count)
+	// set the epochs count
+	epochs := 12
 	layers := []int{784, 16, 16, 10} // input layer (28x28=784), hidden layers, output layer (10 digits)
-	learning_rate := 0.6
-	epochs := 8
-	batch_size := 32
+	var learning_rate float64
+	var batch_size int
 
-	file, err := os.Create("output.csv")
+	file, err := os.Create("results/output.csv")
 	if err != nil {
 		panic(err)
 	}
@@ -205,21 +205,21 @@ func testParameters() {
 	writer := csv.NewWriter(file)
 	defer writer.Flush()
 
-	// Write header
 	err = writer.Write([]string{"Accuracy", "Neurons in hidden layer 1", "Neurons in hidden layer 2", "Learning rate", "Batch size"})
 	if err != nil {
 		log.Fatal("Failed to write header:", err)
 	}
 
 	// lo - neurons in hidden layer 1, lt - neurons in hidden layer two, lr - learning rate, bs - batch size
-	for lo := 1; lo <= 4; lo++ {
+	// the parameters are adjustable by changing the for loops
+	for lo := 3; lo <= 8; lo++ {
 		layers[1] = lo * 16
-		for lt := 1; lt <= 4; lt++ {
+		for lt := 2; lt <= 4; lt++ {
 			layers[2] = lt * 16
-			for lr := 1; lr <= 4; lr++ {
+			for lr := 3; lr <= 4; lr++ {
 				learning_rate = float64(lr) * 0.2
 				for bs := 1; bs <= 2; bs++ {
-					batch_size = 64 * bs
+					batch_size = 32 * bs
 					acc, err := trainingLoop(layers, learning_rate, epochs, batch_size)
 					if err != nil {
 						fmt.Println("Training error:", err)
