@@ -55,18 +55,17 @@ python3 analysis.py
 ```bash
 go test -v
 ```
-- These tests ensure the core functionality of the network is working as expected.
 ### 5. Planned Improvements
 
 - This is a work in progress. Planned future improvements include:
 
-    Optimization of training speed and memory usage
+        Optimization of training speed and memory usage
 
-    More efficient weight update algorithms
+        More efficient weight update algorithms
 
-    Support for additional activation functions and optimizers
+        Support for additional activation functions and optimizers
 
-    Better analysis and visualization tools
+        Better analysis and visualization tools
 
 License
 
