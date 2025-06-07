@@ -48,7 +48,7 @@ testParameters()
 ```bash
 python3 analysis.py
 ```
-- Make sure Python 3 and any required libraries (e.g. matplotlib, pandas) are installed.
+- Make sure Python 3 and the required libraries (matplotlib, pandas, seaborn) are installed.
 ### 4. Running Tests
 
 - Unit tests are available in network_test.go. Run them using:
