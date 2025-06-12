@@ -3,8 +3,8 @@ package main
 import (
 	"encoding/csv"
 	"fmt"
-	"handwritten-nn/dataset"
-	"handwritten-nn/nn"
+	"go_mnist_net/dataset"
+	"go_mnist_net/nn"
 	"log"
 	"math"
 	"math/rand"
