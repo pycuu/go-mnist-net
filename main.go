@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"go_mnist_net/dataset"
 	"go_mnist_net/nn"
@@ -9,21 +10,38 @@ import (
 	"math"
 	"math/rand"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"strconv"
 	"time"
 )
 
 func main() {
 
-	// set network parameters
-
-	layers := []int{784, 16, 16, 10} // input layer (28x28=784), hidden layers, output layer (10 digits)
+	// set network parameters for trainingLoop
+	layers := []int{784, 32, 16, 10} // input layer (28x28=784), hidden layers, output layer (10 digits)
 	learning_rate := 0.6
 	epochs := 12
-	batch_size := 32
+	batch_size := 16
 
+	// trains the model and saves the weights/biases/layers to a file
 	trainingLoop(layers, learning_rate, epochs, batch_size)
 
+	// uncomment to predict based on saved network (from file in the same directory as main.go)
+	// predicting from a file seems to not work well
+	/*
+		network, err := nn.LoadNetwork("network_parameters")
+		if err != nil {
+			fmt.Println(err)
+		}
+		prediction, err := predictFromFile("7.png", *network)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println("The image is number", prediction)
+	*/
+
+	// uncomment to test different parameters
 	//testParameters()
 
 }
@@ -175,7 +193,7 @@ func trainingLoop(layers []int, learning_rate float64, epochs int, batch_size in
 		accuracy := float64(correct) / float64(len(train_data)) * 100
 		elapsed := time.Since(start_time)
 
-		fmt.Printf("Epoch %d/%d - Loss: %.4f - Accuracy: %.2f%% - Time: %s\n",
+		fmt.Printf("Epoch %d/%d - avgLoss: %.4f - Accuracy: %.2f%% - Time: %s\n",
 			epoch+1, epochs, avgLoss, accuracy, elapsed)
 
 		// evaluate on test set after each epoch
@@ -185,6 +203,13 @@ func trainingLoop(layers []int, learning_rate float64, epochs int, batch_size in
 
 	fmt.Println("Training completed!")
 	fmt.Print("\n")
+
+	err = net.SaveNetwork("network_parameters")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("weights saved")
+
 	return test_accuracy, err
 }
 
@@ -244,4 +269,28 @@ func testParameters() {
 		}
 	}
 	fmt.Println("Data saved to output.csv")
+}
+
+func predictFromFile(filename string, network nn.Network) (int, error) {
+
+	path := filepath.Join("custom_pics", filename)
+	fmt.Println(path)
+	// script_path := filepath.Join(exe_dir, "custom_pics", "preprocess.py")
+
+	cmd := exec.Command("python3", "custom_pics/preprocess.py", path)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Printf("Command failed with error: %v\n", err)
+		fmt.Printf("Output: %s\n", string(output))
+	}
+
+	var input []float64
+	json.Unmarshal(output, &input)
+
+	predictions, _, _, err := network.Forward(input)
+	if err != nil {
+		fmt.Println(err)
+	}
+	prediction := argmax(predictions)
+	return prediction, nil
 }

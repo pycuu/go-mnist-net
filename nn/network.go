@@ -1,8 +1,11 @@
 package nn
 
 import (
+	"encoding/json"
 	"errors"
 	"math/rand"
+	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -157,4 +160,40 @@ func (net *Network) UpdateWeights(gradW [][][]float64, gradB [][]float64, learni
 			}
 		}
 	}
+}
+
+func (net *Network) SaveNetwork(filename string) error {
+	network := Network{
+		Layers:  net.Layers,
+		Weights: net.Weights,
+		Biases:  net.Biases,
+	}
+	parameters, err := json.MarshalIndent(network, "", " ")
+
+	path := filepath.Join("results", filename)
+
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(path, parameters, 0644)
+}
+
+func LoadNetwork(filename string) (*Network, error) {
+	path := filepath.Join("results", filename)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var network Network
+	err = json.Unmarshal(data, &network)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Network{
+		Layers:  network.Layers,
+		Weights: network.Weights,
+		Biases:  network.Biases,
+	}, nil
 }
